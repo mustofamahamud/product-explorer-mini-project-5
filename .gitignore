@@ -1,0 +1,22 @@
+# Dependencies & Environment
+node_modules/
+.env
+.env.local
+
+# OS & Editor Temporary Files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+
+# Build / Archive / Cache Artifacts
+*.zip
+*.log
+.cache/
+dist/
+build/

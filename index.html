@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Product Explorer — Interactive API-driven product discovery web application built with HTML5, CSS3, ES6+ JavaScript, DummyJSON API, and Local Storage." />
+  <title>Product Explorer | Interactive Product Discovery</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="site-header" id="top">
+    <div class="container header-inner">
+      <a href="#catalog" class="brand" id="brand-link" aria-label="Product Explorer Home">
+        <span class="brand-mark" aria-hidden="true">PE</span>
+        <span class="brand-text">
+          <span class="brand-name">Product Explorer</span>
+          <span class="brand-tag">Catalog Discovery</span>
+        </span>
+      </a>
+
+      <button
+        type="button"
+        class="mobile-menu-btn"
+        id="mobile-menu-btn"
+        aria-label="Toggle navigation menu"
+        aria-expanded="false"
+        aria-controls="main-nav"
+      >
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+
+      <nav class="main-nav" id="main-nav" aria-label="Primary Navigation">
+        <button type="button" class="nav-link is-active" id="nav-explore-btn" data-view="explore">
+          Explore Products
+        </button>
+        <button type="button" class="nav-link" id="nav-favourites-btn" data-view="favourites">
+          Favourites
+          <span class="badge" id="nav-fav-count">0</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-content" id="catalog">
+    <section class="hero-section" aria-labelledby="hero-title">
+      <div class="container hero-inner">
+        <div class="hero-copy">
+          <p class="eyebrow">CSE-2340 Mini Project (MP3 &amp; MP4)</p>
+          <h1 id="hero-title">Discover quality products with live search, filtering &amp; saved favourites.</h1>
+          <p class="hero-subtitle">
+            Browse items fetched dynamically from the DummyJSON catalog, filter by category or price, inspect product details, and keep your personal shortlist saved in your browser.
+          </p>
+        </div>
+        <div class="hero-stats" aria-label="Catalog summary">
+          <div class="stat-card">
+            <span class="stat-label">Visible Items</span>
+            <span class="stat-value" id="hero-visible-count">0</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Saved Favourites</span>
+            <span class="stat-value" id="hero-fav-count">0</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="controls-section" aria-label="Product Search and Filter Controls">
+      <div class="container">
+        <div class="controls-toolbar">
+          <div class="search-group">
+            <label for="search-input" class="sr-only">Search products by title or keyword</label>
+            <input
+              type="search"
+              id="search-input"
+              class="search-input"
+              placeholder="Search products by name, brand, or category..."
+              autocomplete="off"
+            />
+            <button type="button" class="btn btn-ghost search-clear-btn" id="clear-search-btn" aria-label="Clear search text">
+              Clear
+            </button>
+          </div>
+
+          <div class="filter-group">
+            <label for="category-select" class="control-label">Category</label>
+            <select id="category-select" class="select-control">
+              <option value="all">All Categories</option>
+            </select>
+          </div>
+
+          <div class="sort-group">
+            <label for="sort-select" class="control-label">Sort by Price</label>
+            <select id="sort-select" class="select-control">
+              <option value="default">Default Order</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+            </select>
+          </div>
+
+          <div class="action-group">
+            <button type="button" class="btn btn-secondary" id="reset-filters-btn">
+              Clear All Filters
+            </button>
+          </div>
+        </div>
+
+        <div class="status-bar" aria-live="polite">
+          <p class="result-count" id="result-count-text">Loading products...</p>
+          <p class="active-filters-summary" id="active-filters-summary"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="catalog-section" aria-label="Products Display">
+      <div class="container">
+        <div class="state-box loading-state" id="loading-state" role="status" aria-live="polite">
+          <div class="spinner" aria-hidden="true"></div>
+          <p class="state-title">Loading products from catalog...</p>
+          <p class="state-message">Please wait while we fetch product data and categories.</p>
+        </div>
+
+        <div class="state-box error-state is-hidden" id="error-state" role="alert">
+          <p class="state-title" id="error-title">Unable to load products</p>
+          <p class="state-message" id="error-message">
+            A network or server issue occurred while connecting to the product service.
+          </p>
+          <button type="button" class="btn btn-primary" id="retry-btn">
+            Retry Request
+          </button>
+        </div>
+
+        <div class="state-box empty-state is-hidden" id="empty-state">
+          <p class="state-title" id="empty-title">No matching products found</p>
+          <p class="state-message" id="empty-message">
+            Try adjusting your search keyword, selecting another category, or clearing active filters.
+          </p>
+          <button type="button" class="btn btn-secondary" id="empty-reset-btn">
+            Clear All Filters
+          </button>
+        </div>
+
+        <div class="product-grid" id="product-grid" role="list"></div>
+      </div>
+    </section>
+  </main>
+
+  <div
+    class="modal-backdrop is-hidden"
+    id="product-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-product-title"
+  >
+    <div class="modal-dialog" id="modal-dialog">
+      <button
+        type="button"
+        class="modal-close-btn"
+        id="modal-close-btn"
+        aria-label="Close product details modal"
+      >
+        &times;
+      </button>
+
+      <div class="modal-body" id="modal-body">
+        <div class="modal-media">
+          <img
+            src="assets/images/no-image.svg"
+            alt=""
+            id="modal-product-image"
+            class="modal-image"
+          />
+        </div>
+
+        <div class="modal-details">
+          <span class="modal-category" id="modal-product-category">Category</span>
+          <h2 class="modal-title" id="modal-product-title">Product Title</h2>
+          <p class="modal-brand" id="modal-product-brand"></p>
+
+          <div class="modal-meta">
+            <span class="modal-price" id="modal-product-price">$0.00</span>
+            <span class="modal-rating" id="modal-product-rating">&#9733; 0.0</span>
+            <span class="modal-stock" id="modal-product-stock"></span>
+          </div>
+
+          <p class="modal-description" id="modal-product-description"></p>
+
+          <div class="modal-actions">
+            <button type="button" class="btn btn-primary" id="modal-fav-btn">
+              Add to Favourites
+            </button>
+            <button type="button" class="btn btn-secondary" id="modal-close-secondary-btn">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p class="footer-text">
+        Product Explorer &bull; CSE-2340 Software Development I Mini Project (MP3 &amp; MP4)
+      </p>
+      <p class="footer-subtext">
+        Data provided by <a href="https://dummyjson.com" target="_blank" rel="noopener noreferrer">DummyJSON API</a>. Saved favourites persist locally in your browser.
+      </p>
+    </div>
+  </footer>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
